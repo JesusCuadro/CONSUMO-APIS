@@ -1,6 +1,9 @@
-const API_URL_RANDOM = 'https://api.thedogapi.com/v1/images/search?limit=2&api_key=live_NDVFTiP32wpKzV0vKA5lKsT5PdkSkd0yHJL2O2krRLvXfBaFP09doQ10l5GPFuy8'
-const API_URL_FAVORITES = 'https://api.thedogapi.com/v1/favourites?api_key=live_NDVFTiP32wpKzV0vKA5lKsT5PdkSkd0yHJL2O2krRLvXfBaFP09doQ10l5GPFuy8'
-const API_DELETE_FAVORITES = (id) => `https://api.thedogapi.com/v1/favourites/${id}?api_key=live_NDVFTiP32wpKzV0vKA5lKsT5PdkSkd0yHJL2O2krRLvXfBaFP09doQ10l5GPFuy8`
+const API_URL_RANDOM = 'https://api.thedogapi.com/v1/images/search?limit=2'
+const API_URL_FAVORITES = 'https://api.thedogapi.com/v1/favourites'
+const API_DELETE_FAVORITES = (id) => `https://api.thedogapi.com/v1/favourites/${id}`
+const API_URL_UPLOAD = 'https://api.thedogapi.com/v1/images/upload'
+
+const API_KEY = 'live_NDVFTiP32wpKzV0vKA5lKsT5PdkSkd0yHJL2O2krRLvXfBaFP09doQ10l5GPFuy8'
 
 const spanError = document.getElementById("error")
 const img = document.querySelector('img')
@@ -44,12 +47,16 @@ const cambioImagenes = async () => {
 
     img1.src = data[0].url
     img2.src = data[1].url
-
 }
 
 async function loadFavoriteDogs() {
 
-    const res = await fetch(API_URL_FAVORITES)
+    const res = await fetch(API_URL_FAVORITES, {
+        method: 'GET',
+        headers: {
+            'X-API-KEY': API_KEY,
+        },
+    })
     const data = await res.json()
 
     console.log("Favorites");
@@ -69,7 +76,7 @@ async function loadFavoriteDogs() {
             const btnText = document.createTextNode('Delete from favorites')
 
             btn.appendChild(btnText);
-            
+
             img.src = dog.image.url;
             img.width = 150
 
@@ -89,7 +96,8 @@ async function saveFavoriteDogs(id) {
     const res = await fetch(API_URL_FAVORITES, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-API-KEY': API_KEY
         },
 
         body: JSON.stringify({
@@ -104,7 +112,7 @@ async function saveFavoriteDogs(id) {
 
     if (res.status !== 200) {
         spanError.innerHTML = "hubo un error: " + res.status + " error completo: " + data.message;
-    } else{
+    } else {
         console.log("Dog saved!!");
     }
 
@@ -113,6 +121,9 @@ async function saveFavoriteDogs(id) {
 async function deleteFavoriteDogs(id) {
     const res = await fetch(API_DELETE_FAVORITES(id), {
         method: 'DELETE',
+        headers: {
+            'X-API-KEY': API_KEY
+        },
     })
 
     const data = await res.json();
@@ -122,10 +133,51 @@ async function deleteFavoriteDogs(id) {
 
     if (res.status !== 200) {
         spanError.innerHTML = "An error: " + res.status + " error complete: " + data.message;
-    } else{
+    } else {
         console.log('Dog deleted succesfully!!');
     }
 
+}
+
+async function uploadDogPhoto() {
+
+    const form = document.getElementById('uploadingForm')
+    const formData = new FormData(form);
+
+    console.log(formData.get('file'));
+
+    const res = await fetch(API_URL_UPLOAD, {
+        method: 'POST',
+        headers: {
+            'X-API-KEY': API_KEY
+        },
+        body: formData,
+    })
+
+    const data = await res.json();
+
+    if (res.status !== 201) {
+        spanError.innerHTML = "An error" + res.status + data.message
+        console.log(data);
+    } else {
+        console.log('Dog picture upload :3');
+        console.log({ data });
+        console.log(data.url);
+    }
+}
+
+const previewImage = () => {
+    const file = document.getElementById("file").files;
+    console.log(file);
+    if (file.length > 0) {
+
+        const fileReader = new FileReader();
+
+        fileReader.onload = function (e) {
+            document.getElementById("preview").setAttribute("src", e.target.result);
+        };
+        fileReader.readAsDataURL(file[0]);
+    }
 }
 
 button.addEventListener("click", cambioImagenes)

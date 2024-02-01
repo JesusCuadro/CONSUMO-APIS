@@ -16,6 +16,18 @@
 
         <h2>DOGS</h2>
 
+        <section id="uploadingDog">
+            <h2>Upload your dog picture</h2>
+
+            <form id="uploadingForm">
+                <input type="file" name="file" id="file" onchange="previewImage()">
+                <img id="preview" width="100px" />
+                <button type="button" onclick="uploadDogPhoto()">Upload a dog picture</button>
+            </form>
+        </section>
+
+        <br>
+
         <article>
             <img id="img1" width="200" height="200" alt="dogs photos">
             <button id="btn1">Save to favorites</button>
@@ -35,7 +47,9 @@
         <h2>Favorite Dogs</h2>
 
     </section>
+
     <script src="main.js"></script>
+
 
 </body>
 
